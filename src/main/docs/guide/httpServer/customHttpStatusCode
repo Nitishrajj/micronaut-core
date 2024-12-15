@@ -1,0 +1,58 @@
+The Micronaut framework supports Custom HTTP Status Codes . This feature enables developers to define and use HTTP status codes beyond the standard ones, allowing integration with systems or APIs that rely on non-standard status codes.
+
+
+=== Custom HTTP Status Codes
+Micronaut now supports arbitrary HTTP status codes that are not part of the predefined `HttpStatus` enum. Developers can specify any valid HTTP status code within the range `100-599`.
+
+==== Usage
+- `HttpResponse.status(int statusCode)`:
+Allows setting a custom HTTP status code.
+- `HttpResponse.status(int statusCode, String reason)`:
+Allows setting a custom HTTP status code along with a reason phrase.
+
+==== Examples
+[source,java]
+----
+HttpResponse.status(450, "Blocked by ISP");
+HttpResponse.status(599, "Network Connect Timeout Error");
+----
+
+=== Validation of Status Codes
+Micronaut ensures that the custom status codes are within the valid HTTP range (`100-599`).
+
+- Valid Codes: Between `100` and `599`.
+- Invalid Codes: Codes outside this range (e.g., `700` or negative values) will throw an `IllegalArgumentException`.
+
+==== Examples
+[source,java]
+----
+HttpResponse.status(700); // Throws IllegalArgumentException
+HttpResponse.status(-1); // Throws IllegalArgumentException
+----
+
+=== Client Response Handling
+The HTTP client in Micronaut can now process custom status codes returned by servers. Custom codes are treated appropriately based on their range:
+- Codes `<400` are treated as successful responses.
+- Codes `>=400` trigger exceptions.
+
+==== Example
+[source,java]
+----
+try {
+    HttpResponse response = httpClient.toBlocking().exchange("/example");
+    int statusCode = response.code();
+} catch (HttpClientResponseException e) {
+    if (e.getStatus().getCode() == 450) {
+        // Handle custom status code
+    }
+}
+----
+
+== Backward Compatibility
+This feature is fully backward-compatible:
+- Existing applications using predefined HTTP status codes remain unaffected.
+- Custom status codes are additive, enabling new use cases without breaking existing behavior.
+
+== Summary
+The addition of custom HTTP status code support in Micronaut enhances its flexibility, enabling developers to integrate with systems using non-standard codes. With this feature, arbitrary HTTP status codes can be used while maintaining full compatibility with existing functionality.
+
