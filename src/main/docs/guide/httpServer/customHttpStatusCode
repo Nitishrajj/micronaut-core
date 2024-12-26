@@ -1,8 +1,6 @@
-The Micronaut framework supports Custom HTTP Status Codes . This feature enables developers to define and use HTTP status codes beyond the standard ones, allowing integration with systems or APIs that rely on non-standard status codes.
-
-
+The Micronaut framework supports custom HTTP status codes .This feature enables developers to define and use HTTP status codes beyond the standard ones, allowing integration with systems or APIs that rely on non-standard status codes.
 === Custom HTTP Status Codes
-Micronaut now supports arbitrary HTTP status codes that are not part of the predefined `HttpStatus` enum. Developers can specify any valid HTTP status code within the range `100-599`.
+Micronaut supports arbitrary HTTP status codes that are not part of the predefined `HttpStatus` enum. Developers can specify any valid HTTP status code within the range `100-599`.
 
 ==== Usage
 - `HttpResponse.status(int statusCode)`:
@@ -10,28 +8,19 @@ Allows setting a custom HTTP status code.
 - `HttpResponse.status(int statusCode, String reason)`:
 Allows setting a custom HTTP status code along with a reason phrase.
 
-==== Examples
-[source,java]
-----
-HttpResponse.status(450, "Blocked by ISP");
-HttpResponse.status(599, "Network Connect Timeout Error");
-----
+Below we can see how we support custom status codes and how to implement them. 
 
-=== Validation of Status Codes
-Micronaut ensures that the custom status codes are within the valid HTTP range (`100-599`).
+snippet::io.micronaut.http.HttpResponse[tags="getStatusMethod", indent=0, title="HttpResponse.java"]
+Let's start with a simple example. Given the following class:
 
-- Valid Codes: Between `100` and `599`.
-- Invalid Codes: Codes outside this range (e.g., `700` or negative values) will throw an `IllegalArgumentException`.
+snippet::io.micronaut.http.client.netty.FullNettyClientHttpResponse[tags="getBodyMethod", indent=0, title="FullNettyClientHttpResponse.java"]
+Note how we use code() in the condition where we are checkimg custom http status code. 
 
-==== Examples
-[source,java]
-----
-HttpResponse.status(700); // Throws IllegalArgumentException
-HttpResponse.status(-1); // Throws IllegalArgumentException
-----
+snippet::io.micronaut.http.client.InvalidStatusSpec[tags="testInvalidStatus", indent=0, title="InvalidStatusSpec.groovy"]
+This snippet includes a test for handling an invalid HTTP status code in a Micronaut application.
 
 === Client Response Handling
-The HTTP client in Micronaut can now process custom status codes returned by servers. Custom codes are treated appropriately based on their range:
+The HTTP client in Micronaut can process custom status codes returned by servers. Custom codes are treated appropriately based on their range:
 - Codes `<400` are treated as successful responses.
 - Codes `>=400` trigger exceptions.
 
@@ -47,12 +36,3 @@ try {
     }
 }
 ----
-
-== Backward Compatibility
-This feature is fully backward-compatible:
-- Existing applications using predefined HTTP status codes remain unaffected.
-- Custom status codes are additive, enabling new use cases without breaking existing behavior.
-
-== Summary
-The addition of custom HTTP status code support in Micronaut enhances its flexibility, enabling developers to integrate with systems using non-standard codes. With this feature, arbitrary HTTP status codes can be used while maintaining full compatibility with existing functionality.
-
